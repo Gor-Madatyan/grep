@@ -14,7 +14,7 @@ pub struct GOFF<M, R>
         M: AsRef<[u8]>,
         R: Read
 {
-    grep: Grep<String, M>,
+    grep: Grep<Vec<u8>, M>,
     pub stream: R,
 }
 
@@ -41,8 +41,8 @@ impl<M, R> GOFF<M, R>
     }
 
     pub fn new(config: Config<M>, mut stream: R) -> Result<Self, io::Error> {
-        let mut haystack = String::new();
-        stream.read_to_string(&mut haystack)?;
+        let mut haystack = Vec::new();
+        stream.read_to_end(&mut haystack)?;
         let grep = config.build_grep(haystack);
 
         Ok(GOFF {
@@ -55,7 +55,7 @@ impl<M, R> GOFF<M, R>
     pub fn update_haystack_with_stream(&mut self) -> io::Result<usize> {
         let haystack = &mut self.grep.haystack;
         haystack.clear();
-        self.stream.read_to_string(haystack)
+        self.stream.read_to_end(haystack)
     }
 }
 
@@ -63,7 +63,7 @@ impl<M, R> Deref for GOFF<M, R>
     where
         M: AsRef<[u8]>,
         R: Read {
-    type Target = Grep<String, M>;
+    type Target = Grep<Vec<u8>, M>;
     fn deref(&self) -> &Self::Target {
         &self.grep
     }
