@@ -1,4 +1,4 @@
-use super::*;
+use grep_lib::utils::*;
 
 #[test]
 fn get_env_val_test() {

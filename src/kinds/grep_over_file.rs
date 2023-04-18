@@ -4,18 +4,13 @@ use std::ops::{Deref, DerefMut};
 use crate::Config;
 use crate::grep::Grep;
 
-#[cfg(test)]
-#[path = "../../tests/unit_tests/grep_over_file_tests.rs"]
-mod grep_over_file_tests;
-
-
 pub struct GOFF<M, R>
     where
         M: AsRef<[u8]>,
         R: Read
 {
     grep: Grep<Vec<u8>, M>,
-    pub stream: R,
+    pub stream: R,//todo delete pub,rework system
 }
 
 
@@ -35,7 +30,7 @@ impl<M, R> GOFF<M, R>
         M: AsRef<[u8]>,
         R: Read
 {
-    pub fn set_stream(&mut self, stream: R) -> io::Result<usize> {
+    pub fn set_stream_and_update_haystack(&mut self, stream: R) -> io::Result<usize> {
         self.stream = stream;
         self.update_haystack_with_stream()
     }

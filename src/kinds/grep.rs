@@ -6,8 +6,24 @@ use aho_corasick::AhoCorasick;
 use crate::kinds::Config;
 
 #[cfg(test)]
-#[path = "../../tests/unit_tests/grep_tests.rs"]
-mod grep_tests;
+mod tests {
+    use aho_corasick::MatchKind;
+
+    use super::*;
+
+    #[test]
+    fn recomply() {
+        let mut config: Config<_> = ["1234", "5678!", "2142"].into();
+        config.match_kind(MatchKind::LeftmostLongest);
+        let mut grep = config.build_grep("GI12H_5678!_G".to_owned());
+        let new_matches = ["4232", "3424566"];
+        grep.config.matches = new_matches.into();
+        grep.recomply();
+        assert_eq!(grep.pattern_count(), new_matches.len());
+        assert_eq!(grep.config.get_matches(), new_matches);
+        assert_eq!(grep.match_kind(), &MatchKind::LeftmostLongest);
+    }
+}
 
 
 pub struct Grep<H: AsRef<[u8]>, M: AsRef<[u8]>> {
@@ -66,6 +82,7 @@ impl<H: AsRef<[u8]>, M: AsRef<[u8]>> Grep<H, M> {
             .replace_all_bytes(self.haystack.as_ref(), replace_with)
     }
 
+
     pub fn replace_all_with_bytes<F>(&self, dst: &mut Vec<u8>, func: F)
         where
             F: FnMut(&aho_corasick::Match, &[u8], &mut Vec<u8>) -> bool,
@@ -87,6 +104,18 @@ impl<H: AsRef<str> + AsRef<[u8]>, M: AsRef<[u8]>> Grep<H, M> {
     {
         self.deref()
             .replace_all_with(self.haystack.as_ref(), dst, func)
+    }
+}
+
+impl<M: AsRef<[u8]>> Grep<Vec<u8>, M> {
+    pub fn replace_all_bytes_and_save<B: AsRef<[u8]>>(&mut self, replace_with: &[B]) {
+        self.haystack = self.replace_all_bytes(replace_with);
+    }
+}
+
+impl<M: AsRef<[u8]>> Grep<String, M> {
+    pub fn replace_all_bytes_and_save<B: AsRef<str>>(&mut self, replace_with: &[B]) {
+        self.haystack = self.replace_all(replace_with);
     }
 }
 

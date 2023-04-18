@@ -1,8 +1,7 @@
-use std::{fs, io};
-use std::fs::File;
-use std::io::{Cursor, Seek, Write};
+use std::io;
+use std::io::{Cursor, Seek};
 
-use crate::Config;
+use grep_lib::Config;
 
 #[test]
 fn write_haystack() -> io::Result<()> {
@@ -23,7 +22,7 @@ fn set_stream() -> io::Result<()> {
     let rsl = [12, 32, 12, 44u8];
     let nrsl = [43, 67, 9u8];
     let mut gf = Config::new(["23323GHH"]).build_goff(rsl.as_slice())?;
-    gf.set_stream(&nrsl)?;
+    gf.set_stream_and_update_haystack(&nrsl)?;
     assert_eq!(gf.haystack, &nrsl);
     Ok(())
 }
@@ -40,7 +39,6 @@ fn update_haystack_with_stream() -> io::Result<()> {
     assert_eq!(gf.haystack, &rsl);//if use &[u8] as stream gf.haystack.as_bytes() will be empty
     Ok(())
 }
-
 
 
 
