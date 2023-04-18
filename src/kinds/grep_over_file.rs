@@ -1,4 +1,4 @@
-use std::io::{self, Read, Write};
+use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::ops::{Deref, DerefMut};
 
 use crate::Config;
@@ -10,7 +10,7 @@ pub struct GOFF<M, R>
         R: Read
 {
     grep: Grep<Vec<u8>, M>,
-    pub stream: R,//todo delete pub,rework system
+    stream: R
 }
 
 
@@ -53,6 +53,24 @@ impl<M, R> GOFF<M, R>
         self.stream.read_to_end(haystack)
     }
 }
+
+
+impl<M, R> Seek for GOFF<M, R>
+    where
+        M: AsRef<[u8]>,
+        R: Read + Seek {
+    fn seek(&mut self, pos: SeekFrom) -> io::Result<u64> {
+        self.stream.seek(pos)
+    }
+    fn rewind(&mut self) -> io::Result<()> {
+        self.stream.rewind()
+    }
+
+    fn stream_position(&mut self) -> io::Result<u64> {
+        self.stream.stream_position()
+    }
+}
+
 
 impl<M, R> Deref for GOFF<M, R>
     where
