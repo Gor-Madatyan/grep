@@ -1,6 +1,17 @@
-use aho_corasick::MatchKind;
+use grep_lib::{Config, MatchKind};
 
-use grep_lib::Config;
+#[test]
+fn save() {
+    let matches = ["1234", "5678!", "2142"];
+    let mut config: Config<_> = matches.into();
+    config.match_kind(MatchKind::LeftmostLongest);
+    let mut grep = config.build_grep("GI12H_5678!_G".to_owned());
+    grep.config.match_kind(MatchKind::LeftmostFirst);
+    grep.save();
+    assert_eq!(grep.pattern_count(), matches.len());
+    assert_eq!(grep.match_kind(), &MatchKind::LeftmostFirst);
+}
+
 
 #[test]
 fn set_matches() {
