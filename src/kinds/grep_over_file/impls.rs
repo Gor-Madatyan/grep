@@ -49,6 +49,7 @@ impl<M, R> GOFF<M, R>
     }
 
 
+
     pub fn stream_replace_all_with<W, F>(&mut self, wtr: W, replace_with: F) -> io::Result<()>
         where W: Write, F: FnMut(&Match, &[u8], &mut W) -> io::Result<()>, {
         self.update_haystack_with_stream()?;
@@ -59,6 +60,13 @@ impl<M, R> GOFF<M, R>
     pub fn stream_find_overlapping_iter(&mut self, rdr: R) -> io::Result<FindOverlappingIter<usize>> {
         self.set_stream_and_update_haystack(rdr)?;
         Ok(self.find_overlapping_iter())
+    }
+
+
+    pub fn stream_replace_all_and_save(&mut self, replace_with: &[impl AsRef<[u8]>]) -> io::Result<()> {
+        self.update_haystack_with_stream()?;
+        self.replace_all_bytes_and_save(replace_with);
+        Ok(())
     }
 
 
